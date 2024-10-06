@@ -18,6 +18,9 @@ with open('serra9900.txt', 'r') as arquivo:
         eventos.append((datetime.strptime(f'{datas[i]} {horarios[i]}', "%m/%d/%Y %H:%M:%S"), precipitacao[i]))
         i+=1
 
+#EVENTOS: 0=DATA E HORA DE INICIO
+# 1=PRECIPITACAO ACUMULADA
+
 chuvas_intensas = []
 c_intensas = 1
 data_inicio = eventos[0][0]
@@ -45,6 +48,10 @@ else:
 
 print(f' CHUVAS INTENSAS: {chuvas_intensas}')
 
+
+#CHUVAS_INTENSAS: 0 = INICIO DA CHUVA EROSIVA
+# 1 = FINAL DO EVENTO
+# 2 = CONTAGEM DE BÁSCULAS
 
 chuveros = open('serra9900-chuveros.txt', 'w')
 
