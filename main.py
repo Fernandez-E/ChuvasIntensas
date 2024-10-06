@@ -2,12 +2,7 @@ from functions.separacao import separador_variaveis
 
 from datetime import datetime, timedelta
 
-linhas, datas, horarios, precipitacao = [], [], [], []
-
-dias, meses, anos = [], [], []
-horas, minutos, segundos = [], [], []
-
-eventos = []
+linhas, datas, horarios, precipitacao, eventos = [], [], [], [], []
 
 with open('serra9900.txt', 'r') as arquivo:
     for linha in arquivo:
@@ -56,11 +51,11 @@ chuveros = open('serra9900-chuveros.txt', 'w')
 i=0
 c=0
 for chuva in chuvas_intensas:
-    print(chuva)
-    print(f'{chuva[0].day:02}/{chuva[0].month:02}/{chuva[0].year%100:02}\n')
+    chuveros.write(f'{chuva[0].day:02}/{chuva[0].month:02}/{chuva[0].year%100:02}\n')
+    chuveros.write(f'{i+1} {chuva[2]} {chuva[0].hour:02} {chuva[0].minute:02} 0.0\n')
     for evento in eventos:
         if evento[0] >= chuva[0] and evento[0] <= chuva[1]:
             c+=1
-            print(f'{evento[0].hour:02} {evento[0].minute:02} 0.25')
             chuveros.write(f'{evento[0].hour:02} {evento[0].minute:02} 0.25\n')
+    i+=1
 chuveros.close()
