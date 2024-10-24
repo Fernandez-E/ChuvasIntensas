@@ -1,4 +1,4 @@
-from functions.separacao import separador_variaveis
+#from functions.separacao import separador_variaveis
 
 from datetime import datetime, timedelta
 
@@ -18,17 +18,30 @@ with open('serra9900.txt', 'r') as arquivo:
         eventos.append((datetime.strptime(f'{datas[i]} {horarios[i]}', "%m/%d/%Y %H:%M:%S"), precipitacao[i]))
         i+=1
 
-#EVENTOS: 0=DATA E HORA DE INICIO
-# 1=PRECIPITACAO ACUMULADA
+print(eventos)
+#EVENTOS[Evento][?]
+# ? = 0=DATA E HORA DE INICIO
+# ? = 1=PRECIPITACAO ACUMULADA
 
 chuvas_intensas = []
 c_intensas = 1
+# ADICIONAR CONTADOR DE MES
+c_mes = 1
 data_inicio = eventos[0][0]
 i=0
 for i in range(1, len(eventos)):
     diff_tempo = eventos[i][0] - data_inicio
 
-    if diff_tempo <= timedelta(hours=6):
+    if diff_tempo <= timedelta(minutes=15):
+        c_intensas+=1
+        if c_intensas >= 36:
+            chuvas_intensas.append((data_inicio, eventos[i - 1][0], c_intensas))
+            print(f'{data_inicio} a {eventos[i - 1][0]}: Evento erosivo: {c_intensas} basculas ({c_intensas * 0.25}mm)')
+            c_intensas = 1  # Reinicia a contagem
+            data_inicio = eventos[i][0]
+            continue
+
+    elif diff_tempo > timedelta(minutes=15) and diff_tempo <= timedelta(hours=6):
         c_intensas+=1
 
     else:
