@@ -1,10 +1,11 @@
 #from functions.separacao import separador_variaveis
+from functions.funcoes import verifica_registro
 
 from datetime import datetime, timedelta
 
 linhas, datas, horarios, precipitacao, eventos = [], [], [], [], []
 
-with open('serra9900.txt', 'r') as arquivo:
+with open('serra9900.3.txt', 'r') as arquivo:
     for linha in arquivo:
         linhas.append(linha.strip().replace('""', ' ').replace('"', ''))
 
@@ -23,43 +24,127 @@ print(eventos)
 # ? = 0=DATA E HORA DE INICIO
 # ? = 1=PRECIPITACAO ACUMULADA
 
+
+# LOOP DE IDENTIFICAÇÃO DE CHUVAS INTENSAS COM DURAÇÃO DE 6H E SUPERIORES A 10MM
 chuvas_intensas = []
 c_intensas = 1
-# ADICIONAR CONTADOR DE MES
-c_mes = 1
 data_inicio = eventos[0][0]
-i=0
+
 for i in range(1, len(eventos)):
     diff_tempo = eventos[i][0] - data_inicio
 
-    if diff_tempo <= timedelta(minutes=15):
-        c_intensas+=1
-        if c_intensas >= 36:
-            chuvas_intensas.append((data_inicio, eventos[i - 1][0], c_intensas))
-            print(f'{data_inicio} a {eventos[i - 1][0]}: Evento erosivo: {c_intensas} basculas ({c_intensas * 0.25}mm)')
-            c_intensas = 1  # Reinicia a contagem
-            data_inicio = eventos[i][0]
-            continue
-
-    elif diff_tempo > timedelta(minutes=15) and diff_tempo <= timedelta(hours=6):
-        c_intensas+=1
-
+    if diff_tempo <= timedelta(hours=6):
+        c_intensas += 1
     else:
         if c_intensas >= 40:
             chuvas_intensas.append((data_inicio, eventos[i - 1][0], c_intensas))
+            print(f'{data_inicio} a {eventos[i - 1][0]}: Evento erosivo: {c_intensas} basculas ({c_intensas * 0.25}mm)')
+
+        c_intensas = 1
+        data_inicio = eventos[i][0]
+
+if c_intensas >= 40:
+    chuvas_intensas.append((data_inicio, eventos[-1][0], c_intensas))
+    print(f'{data_inicio} a {eventos[-1][0]}: Evento erosivo: {c_intensas} basculas ({c_intensas * 0.25}mm)')
+
+print("-------------------------------- FIM DO PRIMEIRO LOOP --------------------------------")
+print(f'Contagem de chuvas intensas de ate 6h: {len(chuvas_intensas)}')
+for chuva in chuvas_intensas:
+    print(chuva)
+print("--------------------------------------------------------------------------------------")
+
+# if c_intensas >= 40:
+#     print(f'{data_inicio} a {eventos[-1][0]}: Evento erosivo: {c_intensas} basculas')
+# else:
+#     print(f'{data_inicio}: {c_intensas} basculas')
+# print(f'Total de chuvas erosivas: {len(chuvas_intensas)}')
+# FIM LOOP DE IDENTIFICAÇÃO DE CHUVAS INTENSAS COM DURAÇÃO DE 6H E SUPERIORES A 10MM
+
+
+
+# LOOP DE IDENTIFICAÇÃO DE CHUVAS INTENSAS COM DURAÇÃO DE 15MIN E SUPERIORES A 9MM
+c_intensas = 1
+data_inicio = eventos[0][0]
+registro_6h = True
+i = 0
+for i in range(0, len(eventos)):
+    diff_tempo = eventos[i][0] - data_inicio
+
+    #VERIFICA A EXISTENCIA DE REGISTRO QUE CONTENHA A DATA ATUAL
+    #RETORNA TRUE SE JA EXISTIR REGISTRO E FALSE SE NAO EXISTIR
+    #SE RETORNAR FALSE, CONTINUA A CONTAGEM DE BASCULAS
+    registro_6h = verifica_registro(data_inicio, chuvas_intensas)
+
+    if diff_tempo <= timedelta(minutes=15) and not registro_6h:
+        c_intensas+=1
+
+    else:
+        if c_intensas >= 36 and c_intensas < 40:
+            chuvas_intensas.append((data_inicio, eventos[i - 1][0], c_intensas))
             print(f'{data_inicio} a {eventos[i - 1][0]}: Evento erosivo: {c_intensas} basculas ({c_intensas*0.25}mm)')
         else:
-            print(f'{data_inicio}: {c_intensas} basculas')
+            print(f'{data_inicio}: {c_intensas} basculas [{registro_6h}]')
 
         c_intensas = 1  # Reinicia a contagem
         data_inicio = eventos[i][0]  # Define o novo ponto de início
 
-if c_intensas >= 40:
-    print(f'{data_inicio} a {eventos[-1][0]}: Evento erosivo: {c_intensas} basculas')
-else:
-    print(f'{data_inicio}: {c_intensas} basculas')
+print("-------------------------------- FIM DO SEGUNDO LOOP --------------------------------")
+print(f'Contagem de chuvas intensas de ate 6h e de até 15min: {len(chuvas_intensas)}')
+for chuva in chuvas_intensas:
+    print(chuva)
+print("--------------------------------------------------------------------------------------")
 
-print(f' CHUVAS INTENSAS: {chuvas_intensas}')
+#     diff_tempo = eventos[i][0] - data_inicio
+#     if diff_tempo <= timedelta(minutes=15):
+#
+#
+#     else:
+#         if c_intensas >= 40:
+#             chuvas_intensas.append((data_inicio, eventos[i - 1][0], c_intensas))
+#             print(
+#                 f'{data_inicio} a {eventos[i - 1][0]}: Evento erosivo: {c_intensas} basculas ({c_intensas * 0.25}mm)')
+#         else:
+#             print(f'{data_inicio}: {c_intensas} basculas')
+#
+#         c_intensas = 1  # Reinicia a contagem
+#         data_inicio = eventos[i][0]  # Define o novo ponto de início
+#
+# if c_intensas >= 40:
+#     print(f'{data_inicio} a {eventos[-1][0]}: Evento erosivo: {c_intensas} basculas')
+# else:
+#     print(f'{data_inicio}: {c_intensas} basculas')
+
+
+
+
+    # if diff_tempo <= timedelta(minutes=15):
+    #     c_intensas+=1
+    #     if c_intensas >= 36:
+    #         chuvas_intensas.append((data_inicio, eventos[i - 1][0], c_intensas))
+    #         print(f'{data_inicio} a {eventos[i - 1][0]}: Evento erosivo: {c_intensas} basculas ({c_intensas * 0.25}mm)')
+    #         c_intensas = 1  # Reinicia a contagem
+    #         data_inicio = eventos[i][0]
+    #         continue
+    #
+    # elif diff_tempo > timedelta(minutes=15) and diff_tempo <= timedelta(hours=6):
+    #     c_intensas+=1
+    #
+    # else:
+    #     if c_intensas >= 40:
+    #         chuvas_intensas.append((data_inicio, eventos[i - 1][0], c_intensas))
+    #         print(f'{data_inicio} a {eventos[i - 1][0]}: Evento erosivo: {c_intensas} basculas ({c_intensas*0.25}mm)')
+    #     else:
+    #         print(f'{data_inicio}: {c_intensas} basculas')
+    #
+    #     c_intensas = 1  # Reinicia a contagem
+    #     data_inicio = eventos[i][0]  # Define o novo ponto de início
+
+# if c_intensas >= 40:
+#     print(f'{data_inicio} a {eventos[-1][0]}: Evento erosivo: {c_intensas} basculas')
+# else:
+#     print(f'{data_inicio}: {c_intensas} basculas')
+#
+# print(f' CHUVAS INTENSAS: {chuvas_intensas}')
 
 
 #CHUVAS_INTENSAS: 0 = INICIO DA CHUVA EROSIVA
